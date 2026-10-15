@@ -20,38 +20,57 @@ st.markdown("""
 footer{display:none!important;}
 .block-container{padding-top:0!important; padding-left:0!important; padding-right:0!important; max-width:100%!important;}
 .stApp{background:#FFFBF2;}
-#top-nav {background:#0F3D2E; padding:12px 24px; margin:0; width:100%;}
-div[data-testid="stHorizontalBlock"]{align-items:center;}
+
+/* GREEN TOP BAR */
+div[data-testid="stVerticalBlock"] > div:first-child > div[data-testid="stHorizontalBlock"] {
+    background:#0F3D2E!important;
+    padding:14px 24px!important;
+    margin:0!important;
+    width:100%!important;
+}
+div[data-testid="stHorizontalBlock"].stButton > button[kind="secondary"]{
+    background:transparent!important;
+    color:white!important;
+    border:1px solid rgba(255,255,255,0.35)!important;
+}
+div[data-testid="stHorizontalBlock"].stButton > button[kind="primary"]{
+    background:#F7E38E!important;
+    color:#0F3D2E!important;
+    border:none!important;
+    font-weight:800!important;
+}
+
 .hero{height:480px; background:linear-gradient(to right, rgba(0,0,0,0.65), rgba(0,0,0,0.2)), url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1600&q=80'); background-size:cover; background-position:center; padding:50px 32px; display:flex; flex-direction:column; justify-content:center;}
 .hero h1{color:white; font-size:54px; font-weight:800; line-height:1.05; margin:0;}
 .search-box{background:white; border-radius:16px; padding:18px; margin:-30px 32px 0 32px; box-shadow:0 12px 40px rgba(0,0,0,0.18);}
 .form-card{background:white; border-radius:16px; padding:24px; box-shadow:0 8px 30px rgba(0,0,0,0.08); border:1px solid #EFE9E0; margin:24px 32px;}
-.safety-card{background:white; border-radius:12px; padding:20px; border-left:4px solid #0F3D2E; margin-bottom:16px;}
+.safety-card{background:white; border-radius:12px; padding:20px; border-left:4px solid #0F3D2E; box-shadow:0 4px 16px rgba(0,0,0,0.06); margin-bottom:16px;}
 </style>
 """, unsafe_allow_html=True)
 
-# === REAL CLICKABLE TOP BAR - STREAMLIT BUTTONS ONLY ===
-st.markdown('<div id="top-nav">', unsafe_allow_html=True)
+# TOP BAR - GREEN + CLICKABLE + SEPARATED
 col_logo, c1, c2, c3, c4 = st.columns([2.8, 1.1, 1, 1.3, 0.9], vertical_alignment="center")
 
 with col_logo:
     st.markdown('<div style="color:white; font-weight:900; font-size:20px;">🏠 Home Search <span style="color:#F7E38E;">Kenya</span></div>', unsafe_allow_html=True)
 
 with c1:
-    st.button("Find a Home", type="primary" if st.session_state.page=="home" else "secondary", use_container_width=True, key="b_home", on_click=lambda: go("home"))
+    if st.button("Find a Home", type="primary" if st.session_state.page=="home" else "secondary", use_container_width=True, key="b_home"):
+        go("home")
 
 with c2:
-    st.button("Landlords", type="primary" if st.session_state.page=="landlords" else "secondary", use_container_width=True, key="b_land", on_click=lambda: go("landlords"))
+    if st.button("Landlords", type="primary" if st.session_state.page=="landlords" else "secondary", use_container_width=True, key="b_land"):
+        go("landlords")
 
 with c3:
-    st.button("About & Safety", type="primary" if st.session_state.page=="about" else "secondary", use_container_width=True, key="b_about", on_click=lambda: go("about"))
+    if st.button("About & Safety", type="primary" if st.session_state.page=="about" else "secondary", use_container_width=True, key="b_about"):
+        go("about")
 
 with c4:
-    st.button("Sign in", type="secondary", use_container_width=True, key="b_sign", on_click=lambda: go("signin"))
+    if st.button("Sign in", type="secondary", use_container_width=True, key="b_sign"):
+        go("signin")
 
-st.markdown('</div>', unsafe_allow_html=True)
-# === END TOP BAR ===
-
+# PAGES
 if st.session_state.page=="home":
     st.markdown('<div class="hero"><h1>Find a place to<br>call home.</h1><p style="color:#E8EDEB; font-size:15px; max-width:380px; margin-top:14px;">Explore verified rentals in Siaya, Kisumu, Busia, Maseno and nearby towns. Customer Service: 0140311646</p></div>', unsafe_allow_html=True)
     st.markdown('<div class="search-box">', unsafe_allow_html=True)
@@ -115,7 +134,7 @@ elif st.session_state.page=="about":
           <p style="color:#4A5A55; line-height:1.7;">1. Tenants search<br>2. Landlords $10 verification (123456)<br>3. Always view physically before paying.</p>
         </div>
         <div style="padding:0 32px;">
-          <h2 style="color:#0F3D2E;">Safety Center - Call 0140311646</h2>
+          <h2 style="color:#0F3D2E;">Safety Center - 0140311646</h2>
           <div class="safety-card">
             <h4 style="margin:0;">For Tenants - Avoid Scams</h4>
             <ul style="color:#4A5A55; line-height:1.8;">
@@ -152,7 +171,7 @@ elif st.session_state.page=="signin":
     st.markdown('<div class="form-card">', unsafe_allow_html=True)
     st.text_input("Phone")
     st.text_input("Password", type="password")
-    if st.button("Sign in", type="primary"): st.success("Signed in!")
+    if st.button("Sign in", type="primary"): st.success("Signed in!"); go("home")
     st.markdown('</div>', unsafe_allow_html=True)
 
-st.markdown('<div style="text-align:center; padding:20px; color:#8A9A95; font-size:12px;">© 2026 Home Search Kenya • Customer Service: 0140311646 • $10 verification</div>', unsafe_allow_html=True)
+st.markdown('<div style="text-align:center; padding:20px; color:#8A9A95; font-size:12px;">© 2026 Home Search Kenya • Customer Service: 0140311646 • $10 verification • Back button works</div>', unsafe_allow_html=True)
