@@ -23,7 +23,7 @@ st.markdown('''
 <div class="hero"><h1>Find a place to<br>call home.</h1><p style="color:#E8EDEB; max-width:360px; margin-top:12px;">Explore verified rentals in Siaya, Kisumu, Busia and nearby towns.</p></div>
 ''', unsafe_allow_html=True)
 
-c2,c3,c4,c5=st.columns([3,1,1,1.2,1])
+c1,c2,c3,c4,c5=st.columns([3,1,1,1.2,1])
 with c2:
     if st.button("Find a Home", use_container_width=True):
         st.session_state.page="home"; st.rerun()
