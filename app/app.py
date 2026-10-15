@@ -5,60 +5,55 @@ params = st.query_params
 if "page" in params: st.session_state.page = params["page"]
 if "page" not in st.session_state: st.session_state.page = "home"
 if "verified" not in st.session_state: st.session_state.verified=False
-if "stk" not in st.session_state: st.session_state.stk=False
 
 st.markdown("""
 <style>
 [data-testid="stHeader"]{display:none;}
 .block-container{padding:0!important; max-width:100%!important; padding-top:0!important;}
 .stApp{background:#FFFBF2;}
-a{ text-decoration:none!important; }
-.topbar{
-  background:#0F3D2E;
-  height:64px;
+.topbar {
+  background:#0F3D2E!important;
+  height:65px;
+  width:100%;
   display:flex;
   align-items:center;
   justify-content:space-between;
   padding:0 28px;
-  position:sticky;
-  top:0;
-  z-index:100;
 }
-.topbar.logo{
-  color:white;
-  font-weight:800;
-  font-size:20px;
-  letter-spacing:0.2px;
+.topbar.logo {
+  color:white!important;
+  font-weight:900!important;
+  font-size:22px!important;
+  display:block!important;
 }
-.topbar.logo span{color:#F7E38E;}
-.topbar.nav{
-  display:flex;
-  gap:10px;
-  align-items:center;
+.topbar.logo span {
+  color:#F7E38E!important;
 }
-.topbar.nav a{
-  color:#D1DDD9;
-  font-size:13.5px;
-  font-weight:600;
-  padding:9px 16px;
-  border-radius:9px;
-  display:inline-block;
+.topbar.nav {
+  display:flex!important;
+  gap:12px!important;
+  align-items:center!important;
 }
-.topbar.nav a:hover{
-  color:white;
-  background:rgba(255,255,255,0.12);
+.topbar.nav a {
+  color:#D1DDD9!important;
+  font-size:14px!important;
+  font-weight:600!important;
+  padding:9px 16px!important;
+  border-radius:8px!important;
+  text-decoration:none!important;
+  background:transparent!important;
+  display:inline-block!important;
 }
-.topbar.nav a.active{
-  background:#F7E38E;
-  color:#0F3D2E;
-  font-weight:800;
+.topbar.nav a.active {
+  background:#F7E38E!important;
+  color:#0F3D2E!important;
+  font-weight:800!important;
 }
-.topbar.nav a.signin{
-  border:1px solid #F7E38E;
-  color:#F7E38E;
-  margin-left:8px;
+.topbar.nav a.signin {
+  border:1px solid #F7E38E!important;
+  color:#F7E38E!important;
 }
-.hero{height:460px; background:linear-gradient(to right, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.2) 60%), url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1600&q=80'); background-size:cover; background-position:center; padding:40px 32px; display:flex; flex-direction:column; justify-content:center;}
+.hero{height:460px; background:linear-gradient(to right, rgba(0,0,0,0.62), rgba(0,0,0,0.2)), url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1600&q=80'); background-size:cover; background-position:center; padding:40px 32px; display:flex; flex-direction:column; justify-content:center;}
 .hero h1{color:white; font-size:52px; font-weight:800; line-height:1.05; margin:0;}
 .search-box{background:white; border-radius:16px; padding:16px; margin:-32px 32px 0 32px; box-shadow:0 12px 40px rgba(0,0,0,0.18);}
 </style>
@@ -73,7 +68,7 @@ st.markdown(f"""
     <a href="?page=home" class="{active('home')}">Find a Home</a>
     <a href="?page=landlords" class="{active('landlords')}">Landlords</a>
     <a href="?page=about" class="{active('about')}">About & Safety</a>
-    <a href="?page=signin" class="signin {active('signin')}">Sign in</a>
+    <a href="?page=signin" class="signin">Sign in</a>
   </div>
 </div>
 """, unsafe_allow_html=True)
@@ -109,34 +104,24 @@ if st.session_state.page=="home":
     if go:
         filt=[h for h in homes if h["town"]==town]
         if ptype!="Any home": filt=[h for h in filt if h["type"]==ptype]
-    if budget=="Below 5k": filt=[h for h in filt if h["n"]<5000]
-    if budget=="5k-10k": filt=[h for h in filt if 5000<=h["n"]<=10000]
-
-    st.markdown(f'<div style="padding:24px 32px 0 32px;"><h2 style="color:#0F3D2E;">Homes you might love</h2><p style="color:#6B7A75;">{len(filt)} homes in {town}</p></div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="padding:24px 32px 0 32px;"><h2 style="color:#0F3D2E;">Homes you might love</h2><p>{len(filt)} homes in {town}</p></div>', unsafe_allow_html=True)
     cols=st.columns(3)
     for i,h in enumerate(filt):
         with cols[i%3]:
             st.image(h["img"], use_container_width=True)
-            st.write(f'**{h["type"]} • {h["town"]}**\n{h["price"]}\n{h["area"]}')
-            if st.button(f"View {h['area']}", key=f"v{i}", use_container_width=True):
-                st.session_state.selected=h; st.query_params["page"]="detail"; st.rerun()
-    if go: st.balloons(); st.success(f"Found {len(filt)} homes in {town}!")
+            st.write(f'**{h["type"]} • {h["town"]}** {h["price"]} {h["area"]}')
+    if go: st.balloons(); st.success(f"Found {len(filt)} in {town}!")
 
 elif st.session_state.page=="landlords":
-    st.markdown('<div style="padding:28px 32px;"><h2 style="color:#0F3D2E;">For Landlords</h2><p>Towns: Kisumu, Siaya, Busia, Maseno, Bondo, Ugunja, Ukwala</p></div>', unsafe_allow_html=True)
+    st.markdown('<div style="padding:28px 32px;"><h2 style="color:#0F3D2E;">For Landlords</h2><p>Kisumu, Siaya, Busia, Maseno - KSh 500 demo</p></div>', unsafe_allow_html=True)
 elif st.session_state.page=="about":
-    st.markdown('<div style="padding:28px 32px;"><h2>About & Safety</h2><p>Towns: Kisumu, Siaya, Busia, Maseno + others<br>WhatsApp: 0740311646</p></div>', unsafe_allow_html=True)
+    st.markdown('<div style="padding:28px 32px;"><h2>About & Safety</h2><p>Towns: Kisumu, Siaya, Busia, Maseno, Bondo, Ugunja, Ukwala<br>WhatsApp 0740311646</p></div>', unsafe_allow_html=True)
 elif st.session_state.page=="signin":
-    st.write("## Sign in")
-    if st.button("Request STK", type="primary"):
-        st.success("Use 123456"); st.session_state.stk=True
-    if st.session_state.stk:
-        cd=st.text_input("Code")
-        if st.button("Verify") and cd=="123456": st.session_state.verified=True; st.success("Verified!")
+    st.write("## Sign in - Use 123456 for demo")
+    if st.button("Request STK", type="primary"): st.success("Use 123456"); st.session_state.verified=True
 elif st.session_state.page=="detail":
     h=st.session_state.get("selected", homes[0])
-    if st.button("← Back to homes"): st.query_params["page"]="home"; st.rerun()
+    if st.button("Back"): st.query_params["page"]="home"; st.rerun()
     st.image(h["img"], use_container_width=True)
-    st.title(f'{h["type"]} in {h["area"]}')
 
-st.markdown('<div style="text-align:center; padding:20px; color:#8A9A95; font-size:12px;">© 2026 Home Search Kenya • Maseno added</div>', unsafe_allow_html=True)
+st.markdown('<div style="text-align:center; padding:20px; color:#8A9A95;">© 2026 Home Search Kenya • Maseno added</div>', unsafe_allow_html=True)
