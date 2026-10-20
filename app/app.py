@@ -21,12 +21,10 @@ footer{display:none!important;}
 .block-container{padding-top:0!important; padding-left:0!important; padding-right:0!important; max-width:100%!important;}
 .stApp{background:#FFFFFF;}
 
-/* TOP BAR WHITE */
+/* TOP BAR GREEN - ONLY TOP */
 div[data-testid="stVerticalBlock"] > div:nth-child(1) > div[data-testid="stHorizontalBlock"] {
-    background:#FFFFFF!important;
+    background:#0F3D2E!important;
     padding:14px 20px!important;
-    border-bottom:1px solid #EDE9E0;
-    box-shadow:0 2px 8px rgba(0,0,0,0.05);
 }
 div[data-testid="stVerticalBlock"] > div:nth-child(n+2) div[data-testid="stHorizontalBlock"] {
     background:transparent!important;
@@ -44,7 +42,7 @@ div[data-testid="stVerticalBlock"] > div:nth-child(n+2) div[data-testid="stHoriz
 
 col_logo, c1, c2, c3, c4 = st.columns([2.8, 1.1, 1, 1.3, 0.9], vertical_alignment="center")
 with col_logo:
-    st.markdown('<div style="color:#0F3D2E; font-weight:900; font-size:20px;">Home Search <span style="color:#C8A600;">Kenya</span></div>', unsafe_allow_html=True)
+    st.markdown('<div style="color:white; font-weight:900; font-size:20px;">Home Search <span style="color:#F7E38E;">Kenya</span></div>', unsafe_allow_html=True)
 with c1:
     if st.button("Find a Home", type="primary" if st.session_state.page=="home" else "secondary", use_container_width=True, key="bh"):
         go("home")
@@ -60,7 +58,6 @@ with c4:
 
 if st.session_state.page=="home":
     st.markdown('<div class="hero"><h1>Find a place to<br>call home.</h1><p style="color:#E8EDEB; font-size:15px; max-width:420px; margin-top:14px;">Explore verified rentals in Siaya, Kisumu, Busia, Maseno, Bondo, Ugunja, Ukwala. Customer Service: 0140311646</p></div>', unsafe_allow_html=True)
-    
     with st.container():
         st.markdown('<div class="search-box">', unsafe_allow_html=True)
         sc1,sc2,sc3,sc4 = st.columns([2,2,2,1.2], vertical_alignment="bottom")
@@ -72,7 +69,6 @@ if st.session_state.page=="home":
             if st.button("Search homes", type="primary", use_container_width=True, key="search_btn"):
                 st.toast(f"Searching {town} - {ptype} - {budget}")
         st.markdown('</div>', unsafe_allow_html=True)
-
     st.markdown('<div style="padding:24px 32px 0 32px;"><h2 style="color:#0F3D2E; margin-bottom:4px;">Homes you might love</h2><p style="color:#6B7A75; font-size:13px; margin-top:0;">Showing: {} - {} - {} - Verified by 0140311646</p></div>'.format(town, ptype, budget), unsafe_allow_html=True)
     cols=st.columns(3)
     with cols[0]: st.image("https://images.unsplash.com/photo-1605146769289-440113cc3d00?w=600", use_container_width=True); st.markdown("**Bedsitter - Maseno - Mabungo**\nKSh 5,500 / month\n\n<span class='trust-badge'>Verified</span> <span class='trust-badge'>Maseno</span>", unsafe_allow_html=True)
@@ -108,42 +104,38 @@ elif st.session_state.page=="about":
         <div class="form-card" style="margin:16px 0 16px 32px;">
           <h3 style="color:#0F3D2E; margin-top:0;">Who We Are</h3>
           <p style="color:#4A5A55; line-height:1.8;">
-          We solve rental scams in Western Kenya. We cover 7 towns: Kisumu, Siaya, Busia, Maseno, Bondo, Ugunja, Ukwala around universities.
+          We solve rental scams in Western Kenya. We cover 7 towns: Kisumu, Siaya, Busia, Maseno, Bondo, Ugunja, Ukwala.
           <br><br>
-          <b>Physical Office:</b> Maseno Town, Next to Maseno University Main Gate, Kisumu-Busia Road. Open Mon-Sat 8am-6pm. Visit us anytime.
+          <b>Physical Office:</b> Maseno Town, Next to Maseno University Main Gate, Kisumu-Busia Road. Mon-Sat 8am-6pm.
           <br><br>
-          <b>Why $10 Verification?</b> Free posting sites have 60% fake listings. Our $10 (KSh 1,300) covers ID verification, M-Pesa phone confirmation, and call-back. Demo code 123456.
+          <b>Why $10 Verification?</b> Free sites have 60% fake. $10 (KSh 1,300) covers ID verification, M-Pesa phone confirmation, and call-back. Demo 123456.
           </p>
           <h3 style="color:#0F3D2E;">How It Works</h3>
           <p style="color:#4A5A55; line-height:1.8;">
-          <b>Tenants:</b> Search by town and budget, call verified number, visit physically, pay after getting keys and receipt<br>
-          <b>Landlords:</b> Fill form and ID, $10 STK Push, enter code 123456, call confirmation, listing goes LIVE in 2 hours
+          <b>Tenants:</b> Search by town and budget, call verified number, visit physically, pay after keys<br>
+          <b>Landlords:</b> Form + ID, $10 STK, code 123456, LIVE in 2 hours
           </p>
         </div>
         <div style="padding:0 0 0 32px;">
           <h2 style="color:#0F3D2E;">Safety Center - 0140311646</h2>
           <div class="safety-card">
-            <h4 style="margin:0 0 8px 0; color:#0F3D2E;">For Tenants - 5 Golden Rules to Avoid Scams</h4>
+            <h4 style="margin:0 0 8px 0; color:#0F3D2E;">For Tenants - 5 Golden Rules</h4>
             <ol style="color:#4A5A55; line-height:1.9; margin:0;">
-              <li><b>NEVER pay before viewing</b> - Genuine landlords allow physical viewing first</li>
-              <li>Meet at the property, check water, electricity, locks</li>
-              <li>Ask original ID and proof, get receipt with ID number</li>
+              <li><b>NEVER pay before viewing</b></li>
+              <li>Meet at property, check water, electricity, locks</li>
+              <li>Ask original ID and receipt with ID number</li>
               <li>Pay via M-Pesa to name matching ID</li>
-              <li>Report suspicious listings to 0140311646 - removal in 2 hours</li>
+              <li>Report to 0140311646 - removal in 2 hours</li>
             </ol>
           </div>
           <div class="safety-card" style="border-left-color:#C0392B;">
-            <h4 style="margin:0 0 8px 0; color:#C0392B;">Red Flags - Call 0140311646</h4>
+            <h4 style="margin:0 0 8px 0; color:#C0392B;">Red Flags</h4>
             <ul style="color:#4A5A55; line-height:1.8; margin:0;">
-              <li>Asks deposit before showing house</li>
+              <li>Asks deposit before showing</li>
               <li>Price too low for area</li>
               <li>Refuses physical meeting</li>
-              <li>No ID, pressure to pay TODAY</li>
+              <li>No ID, pressure Pay TODAY</li>
             </ul>
-          </div>
-          <div class="safety-card" style="border-left-color:#F7E38E;">
-            <h4 style="margin:0 0 8px 0;">For Landlords - Your Responsibility</h4>
-            <p style="color:#4A5A55; line-height:1.8; margin:0;">You are responsible for accuracy of rent, availability, and legal right to rent. False listing leads to permanent ban. Tenants must view before paying.</p>
           </div>
         </div>
         """, unsafe_allow_html=True)
@@ -152,27 +144,17 @@ elif st.session_state.page=="about":
         <div class="form-card" style="margin:16px 32px 16px 0;">
           <h3 style="color:#0F3D2E; margin-top:0;">Customer Service</h3>
           <p style="color:#4A5A55; line-height:2;">
-          <b>Phone / WhatsApp:</b><br>0140311646<br><br>
-          <b>Hours:</b><br>Mon-Sat 8am-6pm<br>Sun 10am-4pm<br><br>
-          <b>Email:</b><br>support@homesearch.co.ke<br><br>
-          <b>Physical:</b><br>Maseno Town<br>Near Maseno University<br>Kisumu-Busia Highway<br><br>
-          <b>Response:</b> Under 30 mins on WhatsApp
+          Phone / WhatsApp:<br>0140311646<br><br>
+          Hours:<br>Mon-Sat 8am-6pm<br>Sun 10am-4pm<br><br>
+          Email:<br>support@homesearch.co.ke<br><br>
+          Physical:<br>Maseno Town<br>Near Maseno University<br><br>
           </p>
           <hr>
           <h4 style="color:#0F3D2E;">Trust and Legal</h4>
           <p style="color:#4A5A55; font-size:13px; line-height:1.7;">
-          ID Verification for all landlords<br>
-          Phone verified via M-Pesa<br>
-          Physical visit recommended before payment<br>
-          $10 is verification fee, not commission<br>
-          We do NOT hold tenant money<br>
-          Refund if not as described in 24hrs<br><br>
-          <b>Policy:</b> No payment before viewing<br>
-          <b>Office:</b> Maseno Town
+          ID Verification<br>Phone verified via M-Pesa<br>Physical visit recommended<br>$10 is verification fee<br>We do NOT hold tenant money<br><br>
+          Policy: No payment before viewing
           </p>
-          <hr>
-          <h4 style="color:#0F3D2E;">Verification $10</h4>
-          <p style="color:#4A5A55; font-size:13px;">Demo code 123456. Real M-Pesa STK to Till Number.</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -183,4 +165,4 @@ elif st.session_state.page=="signin":
     if st.button("Sign in", type="primary"): go("home")
     st.markdown('</div>', unsafe_allow_html=True)
 
-st.markdown('<div style="text-align:center; padding:20px; color:#8A9A95; font-size:12px; background:white; margin-top:20px; border-top:1px solid #EDE9E0;">2026 Home Search Kenya - Maseno Town, Near Maseno University - 0140311646 - $10 ID verification - Never pay before viewing</div>', unsafe_allow_html=True)
+st.markdown('<div style="text-align:center; padding:20px; color:#8A9A95; font-size:12px; background:white; margin-top:20px; border-top:1px solid #EDE9E0;">2026 Home Search Kenya - Maseno Town - 0140311646 - $10 ID verification - Never pay before viewing</div>', unsafe_allow_html=True)
