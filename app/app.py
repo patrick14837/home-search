@@ -1,5 +1,10 @@
 import streamlit as st
 
+try:
+    from supabase import create_client
+except ImportError:
+    create_client = None
+
 st.set_page_config(page_title="Home Search Kenya", layout="wide", page_icon="🏠")
 
 if "page" not in st.session_state:
@@ -11,6 +16,22 @@ if "stk" not in st.session_state:
 
 if "page" in st.query_params:
     st.session_state.page = st.query_params["page"]
+
+
+
+def get_supabase_client():
+    """Return a Supabase client when credentials are configured in Streamlit secrets."""
+    if create_client is None:
+        return None, "The Supabase package is not installed. Add supabase to requirements.txt."
+    try:
+        url = st.secrets["SUPABASE_URL"]
+        key = st.secrets["SUPABASE_ANON_KEY"]
+        return create_client(url, key), None
+    except Exception:
+        return None, (
+            "Authentication is not configured yet. Add SUPABASE_URL and "
+            "SUPABASE_ANON_KEY to Streamlit secrets."
+        )
 
 
 def go(p):
@@ -425,13 +446,12 @@ elif st.session_state.page == "about":
 
 
 elif st.session_state.page == "signin":
-    # Premium green-and-white sign-in page for tenants and landlords.
     st.markdown("""
     <style>
     .login-page {
-        min-height: 620px;
-        padding: 42px 20px 56px 20px;
+        padding: 38px 18px 48px 18px;
         background: linear-gradient(135deg, #F5F8F5 0%, #FFFFFF 55%, #EAF2ED 100%);
+        border-radius: 0 0 24px 24px;
     }
     .login-heading {
         text-align: center;
@@ -444,7 +464,7 @@ elif st.session_state.page == "signin":
         text-align: center;
         color: #5A6B66;
         font-size: 15px;
-        margin: 0 0 26px 0;
+        margin: 0 0 24px 0;
     }
     .login-brand {
         text-align: center;
@@ -453,84 +473,154 @@ elif st.session_state.page == "signin":
         letter-spacing: 2px;
         color: #0F3D2E;
         margin-bottom: 12px;
-        text-transform: uppercase;
-    }
-    .login-note {
-        text-align: center;
-        color: #6B7A75;
-        font-size: 12px;
-        margin-top: 18px;
     }
     div[data-testid="stForm"] {
         background: #FFFFFF;
         border: 1px solid #E1EAE4;
         border-radius: 20px;
-        padding: 28px;
+        padding: 26px;
         box-shadow: 0 16px 44px rgba(15, 61, 46, 0.10);
     }
     </style>
     <div class="login-page">
       <div class="login-brand">HOME SEARCH KENYA</div>
-      <h1 class="login-heading">Welcome back</h1>
-      <p class="login-subheading">Sign in to continue your home search or manage your property listings.</p>
+      <h1 class="login-heading">Your home journey starts here</h1>
+      <p class="login-subheading">Sign in or create an account to continue.</p>
     </div>
     """, unsafe_allow_html=True)
 
     left_space, login_col, right_space = st.columns([1, 1.15, 1])
     with login_col:
         st.markdown(
-            '<div style="text-align:center; color:#0F3D2E; font-size:44px; margin-top:-28px;">⌂</div>'
-            '<h3 style="text-align:center; color:#0F3D2E; margin:0 0 6px 0;">Sign in to your account</h3>'
-            '<p style="text-align:center; color:#6B7A75; font-size:13px; margin:0 0 18px 0;">For tenants and landlords</p>',
+            '<h3 style="text-align:center; color:#0F3D2E; margin:0 0 6px 0;">Your account</h3>'
+            '<p style="text-align:center; color:#6B7A75; font-size:13px; margin:0 0 18px 0;">'
+            'For tenants and landlords</p>',
             unsafe_allow_html=True
         )
 
-        with st.form("signin_form", clear_on_submit=False):
-            account_type = st.radio(
-                "I am signing in as",
-                ["Tenant", "Landlord"],
-                horizontal=True,
-                key="signin_account_type"
-            )
-            email = st.text_input(
-                "Email address",
-                placeholder="you@example.com",
-                key="signin_email"
-            )
-            password = st.text_input(
-                "Password",
-                type="password",
-                placeholder="Enter your password",
-                key="signin_password"
-            )
-            submitted = st.form_submit_button(
-                "Sign in",
-                type="primary",
-                use_container_width=True
-            )
+        auth_mode = st.radio(
+            "Choose an option",
+            ["Sign in", "Create account", "Forgot password"],
+            horizontal=True,
+            key="auth_mode"
+        )
+        account_type = st.radio(
+            "I am a",
+            ["Tenant", "Landlord"],
+            horizontal=True,
+            key="auth_account_type"
+        )
+
+        supabase, auth_setup_error = get_supabase_client()
+
+        if auth_mode == "Sign in":
+            with st.form("signin_form", clear_on_submit=False):
+                email = st.text_input("Email address", placeholder="you@example.com")
+                password = st.text_input("Password", type="password")
+                submitted = st.form_submit_button(
+                    "Sign in", type="primary", use_container_width=True
+                )
 
             if submitted:
                 if not email.strip() or not password:
                     st.error("Enter both your email address and password.")
+                elif supabase is None:
+                    st.error(auth_setup_error)
+                else:
+                    try:
+                        result = supabase.auth.sign_in_with_password({
+                            "email": email.strip(),
+                            "password": password
+                        })
+                        user = result.user
+                        if user:
+                            st.session_state["auth_user_email"] = user.email
+                            st.session_state["auth_user_id"] = user.id
+                            st.session_state["signed_in_account_type"] = account_type
+                            st.success(f"Signed in successfully as {account_type.lower()}.")
+                            st.info("Your account is authenticated. A user dashboard can be added next.")
+                        else:
+                            st.error("Sign-in was not completed. Check your details and try again.")
+                    except Exception:
+                        st.error("Sign-in failed. Check your email and password, and verify your email if required.")
+
+        elif auth_mode == "Create account":
+            with st.form("signup_form", clear_on_submit=False):
+                email = st.text_input("Email address", placeholder="you@example.com")
+                password = st.text_input(
+                    "Create password",
+                    type="password",
+                    help="Use at least 8 characters and avoid reusing a password from another site."
+                )
+                confirm_password = st.text_input("Confirm password", type="password")
+                accepted = st.checkbox(
+                    "I understand this is a rental platform and I will provide accurate information."
+                )
+                submitted = st.form_submit_button(
+                    "Create account", type="primary", use_container_width=True
+                )
+
+            if submitted:
+                if not email.strip() or not password or not confirm_password:
+                    st.error("Complete all fields.")
                 elif "@" not in email or "." not in email.rsplit("@", 1)[-1]:
                     st.error("Enter a valid email address.")
+                elif len(password) < 8:
+                    st.error("Choose a password with at least 8 characters.")
+                elif password != confirm_password:
+                    st.error("The passwords do not match.")
+                elif not accepted:
+                    st.error("Please confirm the statement before creating an account.")
+                elif supabase is None:
+                    st.error(auth_setup_error)
                 else:
-                    st.warning(
-                        "The sign-in screen is ready, but account authentication is not connected yet. "
-                        "No account has been signed in."
-                    )
+                    try:
+                        result = supabase.auth.sign_up({
+                            "email": email.strip(),
+                            "password": password,
+                            "options": {
+                                "data": {"account_type": account_type.lower()}
+                            }
+                        })
+                        if result.user:
+                            st.success(
+                                "Registration request submitted. If email confirmation is enabled "
+                                "in Supabase, check your inbox to verify your email before signing in."
+                            )
+                        else:
+                            st.error("The account could not be created. Please try again.")
+                    except Exception:
+                        st.error(
+                            "Account creation failed. The email may already be registered, "
+                            "or the authentication service may need configuration."
+                        )
 
-        forgot_col, create_col = st.columns(2)
-        with forgot_col:
-            if st.button("Forgot password?", use_container_width=True, key="forgot_password"):
-                st.info("Password reset will be available after secure account authentication is connected.")
-        with create_col:
-            if st.button("Create account", use_container_width=True, key="create_account"):
-                st.info("Account registration is not connected yet. No account has been created.")
+        else:
+            with st.form("reset_password_form", clear_on_submit=True):
+                reset_email = st.text_input("Account email address", placeholder="you@example.com")
+                reset_submitted = st.form_submit_button(
+                    "Send password reset email",
+                    type="primary",
+                    use_container_width=True
+                )
+            if reset_submitted:
+                if not reset_email.strip() or "@" not in reset_email:
+                    st.error("Enter the email address associated with your account.")
+                elif supabase is None:
+                    st.error(auth_setup_error)
+                else:
+                    try:
+                        supabase.auth.reset_password_for_email(reset_email.strip())
+                        st.success(
+                            "If an account exists for that address, a password-reset email will be sent. "
+                            "Check your inbox and spam folder."
+                        )
+                    except Exception:
+                        st.error("The reset request could not be sent. Please try again later.")
 
         st.markdown(
-            '<p class="login-note">Your account access will be protected when secure authentication is connected. '
-            'Never share your password or verification codes.</p>',
+            '<p style="text-align:center; color:#6B7A75; font-size:12px; margin-top:18px;">'
+            'Never share your password or email verification codes.</p>',
             unsafe_allow_html=True
         )
 
