@@ -425,18 +425,114 @@ elif st.session_state.page == "about":
 
 
 elif st.session_state.page == "signin":
-    st.markdown(
-        '<div style="padding:24px 32px;">'
-        '<h2 style="color:#0F3D2E;">Sign in - Home Search Kenya</h2></div>',
-        unsafe_allow_html=True
-    )
-    st.markdown('<div class="form-card">', unsafe_allow_html=True)
-    st.text_input("Phone")
-    st.text_input("Password", type="password")
-    st.caption("Sign-in is a visual prototype; account authentication is not connected.")
-    if st.button("Sign in", type="primary"):
-        st.info("Authentication is not yet enabled in this prototype.")
-    st.markdown('</div>', unsafe_allow_html=True)
+    # Premium green-and-white sign-in page for tenants and landlords.
+    st.markdown("""
+    <style>
+    .login-page {
+        min-height: 620px;
+        padding: 42px 20px 56px 20px;
+        background: linear-gradient(135deg, #F5F8F5 0%, #FFFFFF 55%, #EAF2ED 100%);
+    }
+    .login-heading {
+        text-align: center;
+        color: #0F3D2E;
+        font-size: 34px;
+        font-weight: 850;
+        margin: 0 0 8px 0;
+    }
+    .login-subheading {
+        text-align: center;
+        color: #5A6B66;
+        font-size: 15px;
+        margin: 0 0 26px 0;
+    }
+    .login-brand {
+        text-align: center;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        color: #0F3D2E;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+    }
+    .login-note {
+        text-align: center;
+        color: #6B7A75;
+        font-size: 12px;
+        margin-top: 18px;
+    }
+    div[data-testid="stForm"] {
+        background: #FFFFFF;
+        border: 1px solid #E1EAE4;
+        border-radius: 20px;
+        padding: 28px;
+        box-shadow: 0 16px 44px rgba(15, 61, 46, 0.10);
+    }
+    </style>
+    <div class="login-page">
+      <div class="login-brand">HOME SEARCH KENYA</div>
+      <h1 class="login-heading">Welcome back</h1>
+      <p class="login-subheading">Sign in to continue your home search or manage your property listings.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    left_space, login_col, right_space = st.columns([1, 1.15, 1])
+    with login_col:
+        st.markdown(
+            '<div style="text-align:center; color:#0F3D2E; font-size:44px; margin-top:-28px;">⌂</div>'
+            '<h3 style="text-align:center; color:#0F3D2E; margin:0 0 6px 0;">Sign in to your account</h3>'
+            '<p style="text-align:center; color:#6B7A75; font-size:13px; margin:0 0 18px 0;">For tenants and landlords</p>',
+            unsafe_allow_html=True
+        )
+
+        with st.form("signin_form", clear_on_submit=False):
+            account_type = st.radio(
+                "I am signing in as",
+                ["Tenant", "Landlord"],
+                horizontal=True,
+                key="signin_account_type"
+            )
+            email = st.text_input(
+                "Email address",
+                placeholder="you@example.com",
+                key="signin_email"
+            )
+            password = st.text_input(
+                "Password",
+                type="password",
+                placeholder="Enter your password",
+                key="signin_password"
+            )
+            submitted = st.form_submit_button(
+                "Sign in",
+                type="primary",
+                use_container_width=True
+            )
+
+            if submitted:
+                if not email.strip() or not password:
+                    st.error("Enter both your email address and password.")
+                elif "@" not in email or "." not in email.rsplit("@", 1)[-1]:
+                    st.error("Enter a valid email address.")
+                else:
+                    st.warning(
+                        "The sign-in screen is ready, but account authentication is not connected yet. "
+                        "No account has been signed in."
+                    )
+
+        forgot_col, create_col = st.columns(2)
+        with forgot_col:
+            if st.button("Forgot password?", use_container_width=True, key="forgot_password"):
+                st.info("Password reset will be available after secure account authentication is connected.")
+        with create_col:
+            if st.button("Create account", use_container_width=True, key="create_account"):
+                st.info("Account registration is not connected yet. No account has been created.")
+
+        st.markdown(
+            '<p class="login-note">Your account access will be protected when secure authentication is connected. '
+            'Never share your password or verification codes.</p>',
+            unsafe_allow_html=True
+        )
 
 
 st.markdown(
