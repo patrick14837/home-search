@@ -375,7 +375,9 @@ footer {display:none !important;}
     display:inline-block;
     margin:4px 4px 4px 0;
 }
-.home-grid {padding:0 32px;}
+.st-key-results_grid {padding:0 32px;}
+.home-title {color:#10241C !important; font-size:17px; font-weight:800; margin:10px 0 2px 0; line-height:1.3;}
+.home-rent {color:#0F3D2E !important; font-size:16px; font-weight:700; margin:0 0 6px 0;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -512,13 +514,14 @@ if st.session_state.page == "home":
 
     if filtered:
         visible = filtered[:st.session_state.shown]
-        cols = st.columns(3)
+        grid = st.container(key="results_grid")
+        cols = grid.columns(3)
         for index, house in enumerate(visible):
             with cols[index % 3]:
                 st.image(house["image"], use_container_width=True)
                 st.markdown(
-                    f"**{html.escape(house['name'])}**\n\n"
-                    f"KSh {house['rent']:,} / month\n\n"
+                    f"<div class='home-title'>{html.escape(house['name'])}</div>"
+                    f"<div class='home-rent'>KSh {house['rent']:,} / month</div>"
                     f"<span class='trust-badge'>Demo listing</span>"
                     f"<span class='trust-badge'>{html.escape(house['area'])}</span>",
                     unsafe_allow_html=True
