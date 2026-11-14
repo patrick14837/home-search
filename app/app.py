@@ -263,6 +263,51 @@ footer {display:none !important;}
 .stApp button:focus-visible {outline:3px solid #F7E38E !important; outline-offset:2px !important; box-shadow:0 0 0 5px #0F3D2E !important;}
 .stApp button:disabled {opacity:0.55 !important;}
 
+/* ---------- FORMS: readable on every page, whatever the browser theme ---------- */
+.stApp label,
+.stApp [data-testid="stWidgetLabel"],
+.stApp [data-testid="stWidgetLabel"] p,
+.stApp [data-testid="stCheckbox"] p,
+.stApp [role="radiogroup"] label p {
+    color:#0F3D2E !important;
+    -webkit-text-fill-color:#0F3D2E !important;
+    font-weight:700 !important;
+}
+.stApp [data-baseweb="input"],
+.stApp [data-baseweb="base-input"],
+.stApp [data-baseweb="textarea"],
+.stApp [data-baseweb="select"] > div {
+    background:#FFFFFF !important;
+    border:1.5px solid #8FAE9F !important;
+    border-radius:10px !important;
+}
+.stApp [data-baseweb="input"] > div,
+.stApp [data-baseweb="textarea"] > div,
+.stApp [data-baseweb="select"] div,
+.stApp input,
+.stApp textarea {
+    background:#FFFFFF !important;
+    color:#10241C !important;
+    -webkit-text-fill-color:#10241C !important;
+}
+.stApp input::placeholder,
+.stApp textarea::placeholder {color:#6B7A75 !important; -webkit-text-fill-color:#6B7A75 !important; opacity:1;}
+.stApp [data-baseweb="select"] svg {fill:#0F3D2E !important;}
+.stApp [data-testid="stNumberInputContainer"] button {background:#E3F0E9 !important; color:#0F3D2E !important;}
+.stApp [data-baseweb="radio"] > div:first-child,
+.stApp [data-baseweb="checkbox"] > span:first-child {
+    background:#FFFFFF !important;
+    border:2px solid #0F3D2E !important;
+}
+.stApp [data-testid="stCaptionContainer"],
+.stApp [data-testid="stCaptionContainer"] p {color:#51635D !important;}
+.stApp [data-testid="stAlert"] {
+    background:#EEF6F1 !important;
+    border:1px solid #BFD8CA !important;
+    border-radius:12px !important;
+}
+.stApp [data-testid="stAlert"] * {color:#10241C !important;}
+
 /* ---------- GREEN TOP NAVIGATION BAR ---------- */
 .st-key-top_nav {
     background:#0F3D2E !important;
@@ -310,7 +355,7 @@ footer {display:none !important;}
     flex-direction:column;
     justify-content:center;
 }
-.hero h1 {color:white; font-size:52px; font-weight:800; line-height:1.05; margin:0;}
+.hero h1 {color:#FFFFFF !important; font-size:52px; font-weight:800; line-height:1.05; margin:0;}
 
 /* ---------- SEARCH PANEL ---------- */
 .st-key-search_box {
@@ -692,9 +737,9 @@ elif st.session_state.page == "signin":
         background: linear-gradient(135deg, #F5F8F5 0%, #FFFFFF 55%, #EAF2ED 100%);
         border-radius: 0 0 24px 24px;
     }
-    .login-heading {text-align:center; color:#0F3D2E; font-size:34px; font-weight:850; margin:0 0 8px 0;}
-    .login-subheading {text-align:center; color:#51635D; font-size:15px; margin:0 0 24px 0;}
-    .login-brand {text-align:center; font-size:13px; font-weight:800; letter-spacing:2px; color:#0F3D2E; margin-bottom:12px;}
+    .login-heading {text-align:center; color:#0F3D2E !important; font-size:34px; font-weight:850; margin:0 0 8px 0;}
+    .login-subheading {text-align:center; color:#51635D !important; font-size:15px; margin:0 0 24px 0;}
+    .login-brand {text-align:center; font-size:13px; font-weight:800; letter-spacing:2px; color:#0F3D2E !important; margin-bottom:12px;}
     div[data-testid="stForm"] {
         background:#FFFFFF;
         border:1px solid #E1EAE4;
