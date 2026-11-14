@@ -272,7 +272,6 @@ footer {display:none !important;}
 }
 .st-key-top_nav [data-testid="stHorizontalBlock"],
 .st-key-top_nav [data-testid="stColumn"] {background:transparent !important;}
-.st-key-top_nav [data-testid="stMarkdownContainer"] {color:white !important;}
 /* inactive tab: white pill, dark green text */
 .st-key-top_nav button[kind="secondary"],
 .st-key-top_nav [data-testid="stBaseButton-secondary"] {
@@ -288,6 +287,14 @@ footer {display:none !important;}
     color:#0F3D2E !important;
     border:2px solid #F7E38E !important;
     border-radius:999px !important;
+}
+/* button labels sit inside markdown containers: force the label colour explicitly */
+.st-key-top_nav button p,
+.st-key-top_nav button span,
+.st-key-top_nav button [data-testid="stMarkdownContainer"] {
+    color:#0F3D2E !important;
+    -webkit-text-fill-color:#0F3D2E !important;
+    font-weight:800 !important;
 }
 .st-key-top_nav button:focus-visible {outline:3px solid #FFFFFF !important; box-shadow:none !important;}
 
