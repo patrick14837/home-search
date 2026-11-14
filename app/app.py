@@ -311,6 +311,8 @@ footer {display:none !important;}
     border-radius:20px;
     padding:22px 22px 14px 22px;
     margin:-70px 32px 20px 32px;
+    width:calc(100% - 64px) !important;
+    box-sizing:border-box;
     box-shadow:0 12px 40px rgba(0,0,0,0.16);
     border:1px solid #D5E3DB;
     position:relative;
@@ -320,11 +322,23 @@ footer {display:none !important;}
 .st-key-search_box [data-baseweb="select"] > div,
 .st-key-search_box [data-baseweb="input"] {
     border:1.5px solid #8FAE9F !important;
-    background:#FFFFFF !important;
     border-radius:10px !important;
 }
-.st-key-search_box [data-baseweb="select"] * ,
-.st-key-search_box input {color:#10241C !important;}
+.st-key-search_box [data-baseweb="select"] div,
+.st-key-search_box [data-baseweb="input"],
+.st-key-search_box [data-baseweb="input"] > div,
+.st-key-search_box input {
+    background:#FFFFFF !important;
+    color:#10241C !important;
+    -webkit-text-fill-color:#10241C !important;
+}
+.st-key-search_box input::placeholder {color:#6B7A75 !important; -webkit-text-fill-color:#6B7A75 !important; opacity:1;}
+.st-key-search_box [data-baseweb="select"] svg {fill:#0F3D2E !important;}
+/* dropdown lists open in a popover outside the panel */
+[data-baseweb="popover"] [role="listbox"],
+[data-baseweb="popover"] [role="option"],
+[data-baseweb="popover"] li {background:#FFFFFF !important; color:#10241C !important;}
+[data-baseweb="popover"] [role="option"]:hover {background:#E3F0E9 !important;}
 
 /* ---------- CARDS ---------- */
 .st-key-landlord_card {
@@ -435,9 +449,9 @@ if st.session_state.page == "home":
         with r2a:
             ptype = st.selectbox("Property type", [ANY_TYPE] + PROPERTY_TYPES, key="f_type")
         with r2b:
-            st.session_state.setdefault("f_budget", (BUDGET_STEPS[0], BUDGET_STEPS[-1]))
             budget = st.select_slider(
                 "Monthly rent (KSh)", options=BUDGET_STEPS,
+                value=(BUDGET_STEPS[0], BUDGET_STEPS[-1]),
                 format_func=fmt_budget, key="f_budget"
             )
         with r2c:
@@ -448,6 +462,8 @@ if st.session_state.page == "home":
             st.button("Clear", type="secondary", use_container_width=True, key="clear_btn", on_click=reset_filters)
 
     # ---- filtering ----
+    if not isinstance(budget, (tuple, list)):
+        budget = (BUDGET_STEPS[0], budget)
     low, high = budget
     tokens = text.lower().split()
     filtered = []
