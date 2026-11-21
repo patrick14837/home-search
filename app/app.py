@@ -1,6 +1,7 @@
 import html
 import random
 import re
+import uuid
 
 import streamlit as st
 
@@ -18,6 +19,13 @@ SUPPORT_PHONE = "0140311646"
 LISTING_FEE_KSH = 1300  # roughly US$10; change to your real fee
 PAGES = ("home", "landlords", "about", "signin")
 PAGE_SIZE = 12
+
+# Landlord photo upload settings
+MAX_PHOTOS = 5
+MIN_PHOTOS = 1            # set to 0 if photos should be optional
+MAX_PHOTO_MB = 5
+PHOTO_BUCKET = "listing-photos"   # Supabase Storage bucket name
+SAVE_PHOTOS_TO_SUPABASE = False   # keep False for the demo; set True once the bucket exists
 
 ALL_TOWNS = "All towns & cities"
 ALL_AREAS = "All areas"
@@ -141,6 +149,40 @@ def fmt_budget(value):
     if value == BUDGET_STEPS[-1]:
         return f"{value // 1000}k+"
     return f"KSh {value:,}"
+
+
+def photo_problems(files):
+    """Return a list of plain-English problems with the chosen photos (empty list = all good)."""
+    problems = []
+    if len(files) < MIN_PHOTOS:
+        problems.append(f"Add at least {MIN_PHOTOS} photo of the house.")
+    if len(files) > MAX_PHOTOS:
+        problems.append(f"You can upload at most {MAX_PHOTOS} photos. Remove {len(files) - MAX_PHOTOS}.")
+    for f in files[:MAX_PHOTOS]:
+        if f.size > MAX_PHOTO_MB * 1024 * 1024:
+            problems.append(f"{f.name} is larger than {MAX_PHOTO_MB} MB.")
+            continue
+        head = f.getvalue()[:8]
+        is_jpg = head.startswith(b"\xff\xd8\xff")
+        is_png = head.startswith(b"\x89PNG\r\n\x1a\n")
+        if not (is_jpg or is_png):
+            problems.append(f"{f.name} is not a real JPG or PNG image.")
+    return problems
+
+
+def upload_photos(files):
+    """Upload photos to Supabase Storage for the signed-in user and return their public URLs."""
+    client = st.session_state.get("_supabase")
+    user_id = st.session_state.get("auth_user_id")
+    if client is None or not user_id:
+        raise RuntimeError("Sign in first to save photos.")
+    urls = []
+    for f in files[:MAX_PHOTOS]:
+        ext = "png" if f.type == "image/png" else "jpg"
+        path = f"{user_id}/{uuid.uuid4().hex}.{ext}"
+        client.storage.from_(PHOTO_BUCKET).upload(path, f.getvalue(), {"content-type": f.type})
+        urls.append(client.storage.from_(PHOTO_BUCKET).get_public_url(path))
+    return urls
 
 
 # --------------------------------------------------------------------------
@@ -301,12 +343,35 @@ footer {display:none !important;}
 }
 .stApp [data-testid="stCaptionContainer"],
 .stApp [data-testid="stCaptionContainer"] p {color:#51635D !important;}
-.stApp [data-testid="stAlert"] {
+
+/* alerts: the inner containers were keeping the dark theme background */
+.stApp [data-testid="stAlert"],
+.stApp [data-testid="stAlert"] > div,
+.stApp [data-testid="stAlertContainer"] {
     background:#EEF6F1 !important;
+}
+.stApp [data-testid="stAlert"] {
     border:1px solid #BFD8CA !important;
     border-radius:12px !important;
 }
+.stApp [data-testid="stAlert"]:has([data-testid="stAlertContentError"]),
+.stApp [data-testid="stAlert"]:has([data-testid="stAlertContentError"]) > div {
+    background:#FDECEA !important;
+    border-color:#E3A9A3 !important;
+}
 .stApp [data-testid="stAlert"] * {color:#10241C !important;}
+
+/* photo uploader */
+.stApp [data-testid="stFileUploaderDropzone"] {
+    background:#F3F8F5 !important;
+    border:2px dashed #8FAE9F !important;
+    border-radius:12px !important;
+}
+.stApp [data-testid="stFileUploaderDropzone"] *,
+.stApp [data-testid="stFileUploaderFile"] * {
+    color:#10241C !important;
+    -webkit-text-fill-color:#10241C !important;
+}
 
 /* ---------- GREEN TOP NAVIGATION BAR ---------- */
 .st-key-top_nav {
@@ -618,6 +683,20 @@ elif st.session_state.page == "landlords":
         type_ll = st.selectbox("Property type *", PROPERTY_TYPES, key="ll_type")
         rent = st.number_input("Monthly Rent (KSh) *", min_value=0, value=6500, step=500)
         desc = st.text_area("House Description *")
+
+        photos = st.file_uploader(
+            f"House photos * (JPG or PNG, up to {MAX_PHOTOS}, max {MAX_PHOTO_MB} MB each)",
+            type=["jpg", "jpeg", "png"],
+            accept_multiple_files=True,
+            key="ll_photos",
+        )
+        photos = photos or []
+        if photos:
+            st.caption(f"{len(photos)} photo(s) selected. Tip: show the front, living room, bedroom and kitchen.")
+            preview_cols = st.columns(min(len(photos), MAX_PHOTOS))
+            for pcol, pfile in zip(preview_cols, photos[:MAX_PHOTOS]):
+                pcol.image(pfile, use_container_width=True)
+
         st.caption("Demo only: this form does not collect a real payment or publish a live listing.")
 
         if st.button(f"Demo M-Pesa STK Push - KSh {LISTING_FEE_KSH:,}", type="primary", key="stk_btn"):
@@ -634,16 +713,28 @@ elif st.session_state.page == "landlords":
         if st.session_state.verified:
             if st.button("Submit demo listing", type="primary", use_container_width=True, key="submit_demo"):
                 phone_ok = re.fullmatch(r"(?:\+254|254|0)[17]\d{8}", phone.replace(" ", ""))
+                photo_issues = photo_problems(photos)
                 if not full_name.strip() or not desc.strip():
                     st.error("Enter your full name and a house description.")
                 elif not phone_ok:
                     st.error("Enter a valid Kenyan phone number, e.g. 0712345678.")
                 elif rent <= 0:
                     st.error("Enter the monthly rent.")
+                elif photo_issues:
+                    for issue in photo_issues:
+                        st.error(issue)
                 else:
+                    photo_note = f"{len(photos)} photo(s) attached (kept for this demo only)."
+                    if SAVE_PHOTOS_TO_SUPABASE:
+                        try:
+                            urls = upload_photos(photos)
+                            photo_note = f"{len(urls)} photo(s) uploaded to storage."
+                        except Exception:
+                            photo_note = "Photos could not be uploaded. Check you are signed in and the storage bucket exists."
                     st.success(
                         f"Demo listing entered for {full_name.strip()}: {type_ll} in {area_ll}, "
-                        f"{town_ll} at KSh {int(rent):,}. It has not been published to a live database."
+                        f"{town_ll} at KSh {int(rent):,}. {photo_note} "
+                        "It has not been published to a live database."
                     )
         else:
             st.warning("Complete the demo verification steps to test this flow.")
